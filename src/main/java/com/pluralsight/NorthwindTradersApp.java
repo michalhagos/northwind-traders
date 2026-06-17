@@ -53,6 +53,20 @@ public class NorthwindTradersApp{
                         System.out.println("Phone:    " + results.getString("Phone"));
                         System.out.println("------------------");
                     }
+                } else if (choice == 3) {
+
+                    // No user input in this query, so regular Statement is safe here
+                    Statement statement = connection.createStatement();
+                    ResultSet results = statement.executeQuery(
+                            "SELECT CategoryID, CategoryName FROM categories ORDER BY CategoryID"
+                    );
+
+                    System.out.println("\n--- All Categories ---");
+                    while (results.next()) {
+                        System.out.println("Category ID:   " + results.getInt("CategoryID"));
+                        System.out.println("Category Name: " + results.getString("CategoryName"));
+                        System.out.println("------------------");
+                    }
                 } else if (choice == 0) {
                     // User chose to exit
                     System.out.println("Goodbye!");
