@@ -66,6 +66,9 @@ public class NorthwindTradersApp{
                         System.out.println("Category ID:   " + results.getInt("CategoryID"));
                         System.out.println("Category Name: " + results.getString("CategoryName"));
                         System.out.println("------------------");
+                        // Ask the user which category they want to filter by
+                        System.out.print("\nEnter a Category ID to see its products: ");
+                        int categoryId = scanner.nextInt();
                     }
                 } else if (choice == 0) {
                     // User chose to exit
