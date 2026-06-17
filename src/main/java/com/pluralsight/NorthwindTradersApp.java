@@ -5,25 +5,59 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-public class NorthwindTradersApp {
+import java.util.Scanner;
+public class NorthwindTradersApp{
     public static void main(String[] args) {
+        // Database connection details
         String url = "jdbc:mysql://localhost:3306/northwind";
         String username = "root";
         String password = "yearup26";
-        try {
-            Connection connection = DriverManager.getConnection(url, username, password);
+        // try-with-resources automatically closes the connection when done
+        try (Connection connection = DriverManager.getConnection(url, username, password)) {
             System.out.println("Connected!");
-            Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM products");
-            while (results.next()) {
-                System.out.println("Product Id: " + results.getInt("ProductID"));
-                System.out.println("Name:       " + results.getString("ProductName"));
-                System.out.println("Price:      " + results.getDouble("UnitPrice"));
-                System.out.println("Stock:      " + results.getInt("UnitsInStock"));
-                System.out.println("------------------");
+            Scanner scanner = new Scanner(System.in);
+            int choice = -1;
+            // Keep showing the menu until user selects 0 to exit
+            while (choice != 0) {
+                // Display the home screen menu
+                System.out.println("\nWhat do you want to do?");
+                System.out.println("1) Display all products");
+                System.out.println("2) Display all customers");
+                System.out.println("0) Exit");
+                System.out.print("Select an option: ");
+                choice = scanner.nextInt();
+                if (choice == 1) {
+                    // Query the products table
+                    Statement statement = connection.createStatement();
+                    ResultSet results = statement.executeQuery("SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM products");
+                    // Print each product in stacked format
+                    while (results.next()) {
+                        System.out.println("Product Id: " + results.getInt("ProductID"));
+                        System.out.println("Name:       " + results.getString("ProductName"));
+                        System.out.println("Price:      " + results.getDouble("UnitPrice"));
+                        System.out.println("Stock:      " + results.getInt("UnitsInStock"));
+                        System.out.println("------------------");
+                    }
+                } else if (choice == 2) {
+                    // Query the customers table, ordered by country
+                    Statement statement = connection.createStatement();
+                    ResultSet results = statement.executeQuery("SELECT ContactName, CompanyName, City, Country, Phone FROM customers ORDER BY Country");
+                    // Print each customer in stacked format
+                    while (results.next()) {
+                        System.out.println("Contact:  " + results.getString("ContactName"));
+                        System.out.println("Company:  " + results.getString("CompanyName"));
+                        System.out.println("City:     " + results.getString("City"));
+                        System.out.println("Country:  " + results.getString("Country"));
+                        System.out.println("Phone:    " + results.getString("Phone"));
+                        System.out.println("------------------");
+                    }
+                } else if (choice == 0) {
+                    // User chose to exit
+                    System.out.println("Goodbye!");
+                }
             }
-            connection.close();
         } catch (SQLException e) {
+            // Print any database errors
             e.printStackTrace();
         }
     }
