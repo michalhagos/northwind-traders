@@ -7,17 +7,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
-public class NorthwindTradersApp{
+
+public class NorthwindTradersApp {
     public static void main(String[] args) {
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/northwind";
         String username = "root";
         String password = "yearup26";
+
         // try-with-resources automatically closes the connection when done
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             System.out.println("Connected!");
             Scanner scanner = new Scanner(System.in);
             int choice = -1;
+
             // Keep showing the menu until user selects 0 to exit
             while (choice != 0) {
                 // Display the home screen menu
@@ -28,6 +31,7 @@ public class NorthwindTradersApp{
                 System.out.println("0) Exit");
                 System.out.print("Select an option: ");
                 choice = scanner.nextInt();
+
                 if (choice == 1) {
                     // Query the products table
                     Statement statement = connection.createStatement();
@@ -40,6 +44,7 @@ public class NorthwindTradersApp{
                         System.out.println("Stock:      " + results.getInt("UnitsInStock"));
                         System.out.println("------------------");
                     }
+
                 } else if (choice == 2) {
                     // Query the customers table, ordered by country
                     Statement statement = connection.createStatement();
@@ -53,42 +58,54 @@ public class NorthwindTradersApp{
                         System.out.println("Phone:    " + results.getString("Phone"));
                         System.out.println("------------------");
                     }
-                } else if (choice == 3) {
 
+                } else if (choice == 3) {
                     // No user input in this query, so regular Statement is safe here
                     Statement statement = connection.createStatement();
                     ResultSet results = statement.executeQuery(
                             "SELECT CategoryID, CategoryName FROM categories ORDER BY CategoryID"
                     );
-
+                    // Print each category in stacked format
                     System.out.println("\n--- All Categories ---");
                     while (results.next()) {
                         System.out.println("Category ID:   " + results.getInt("CategoryID"));
                         System.out.println("Category Name: " + results.getString("CategoryName"));
                         System.out.println("------------------");
-                        // Ask the user which category they want to filter by
-                        System.out.print("\nEnter a Category ID to see its products: ");
-                        int categoryId = scanner.nextInt();
-                        // The ? locks in the structure before user input ever touches the query
-                        String sql = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
-                                "FROM products " +
-                                "WHERE CategoryID = ?";
-
-                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
-                        // setInt() binds the user's input as a plain integer — never as SQL
-
-                        preparedStatement.setInt(1, categoryId);
-
-                        ResultSet productResults = preparedStatement.executeQuery();
-
-                        System.out.println("\n--- Products in Category " + categoryId + " ---");
                     }
+                    // Prompt the user to enter a category ID to filter products
+                    System.out.print("\nEnter a Category ID to see its products: ");
+                    int categoryId = scanner.nextInt();
+                    // Use PreparedStatement to safely query products by category
+                    // The ? placeholder prevents SQL injection by treating user input as data, not SQL
+                    String sql = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
+                            "FROM products " +
+                            "WHERE CategoryID = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    // Bind the user's input to the placeholder as a plain integer
+                    preparedStatement.setInt(1, categoryId);
+                    ResultSet productResults = preparedStatement.executeQuery();
+                    // Print each matching product in stacked format
+                    System.out.println("\n--- Products in Category " + categoryId + " ---");
+                    boolean found = false;
+                    while (productResults.next()) {
+                        found = true;
+                        System.out.println("Product ID: " + productResults.getInt("ProductID"));
+                        System.out.println("Name:       " + productResults.getString("ProductName"));
+                        System.out.println("Price:      " + productResults.getDouble("UnitPrice"));
+                        System.out.println("Stock:      " + productResults.getInt("UnitsInStock"));
+                        System.out.println("------------------");
+                    }
+                    // Let the user know if no products were found for that category
+                    if (!found) {
+                        System.out.println("No products found for category ID: " + categoryId);
+                    }
+
                 } else if (choice == 0) {
                     // User chose to exit
                     System.out.println("Goodbye!");
                 }
             }
+
         } catch (SQLException e) {
             // Print any database errors
             e.printStackTrace();
