@@ -69,6 +69,20 @@ public class NorthwindTradersApp{
                         // Ask the user which category they want to filter by
                         System.out.print("\nEnter a Category ID to see its products: ");
                         int categoryId = scanner.nextInt();
+                        // The ? locks in the structure before user input ever touches the query
+                        String sql = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
+                                "FROM products " +
+                                "WHERE CategoryID = ?";
+
+                        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+                        // setInt() binds the user's input as a plain integer — never as SQL
+
+                        preparedStatement.setInt(1, categoryId);
+
+                        ResultSet productResults = preparedStatement.executeQuery();
+
+                        System.out.println("\n--- Products in Category " + categoryId + " ---");
                     }
                 } else if (choice == 0) {
                     // User chose to exit
