@@ -14,9 +14,13 @@ public class NorthwindTradersApp {
             Connection connection = DriverManager.getConnection(url, username, password);
             System.out.println("Connected!");
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT * FROM products");
+            ResultSet results = statement.executeQuery("SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM products");
             while (results.next()) {
-                System.out.println(results.getString("ProductName"));
+                System.out.println("Product Id: " + results.getInt("ProductID"));
+                System.out.println("Name:       " + results.getString("ProductName"));
+                System.out.println("Price:      " + results.getDouble("UnitPrice"));
+                System.out.println("Stock:      " + results.getInt("UnitsInStock"));
+                System.out.println("------------------");
             }
             connection.close();
         } catch (SQLException e) {
