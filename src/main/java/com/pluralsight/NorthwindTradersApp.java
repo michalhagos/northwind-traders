@@ -24,6 +24,7 @@ public class NorthwindTradersApp{
                 System.out.println("\nWhat do you want to do?");
                 System.out.println("1) Display all products");
                 System.out.println("2) Display all customers");
+                System.out.println("3) Display all categories");
                 System.out.println("0) Exit");
                 System.out.print("Select an option: ");
                 choice = scanner.nextInt();
